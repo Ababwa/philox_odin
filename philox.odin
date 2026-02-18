@@ -59,20 +59,27 @@ where K >= 1 && K <= 2 && C == 2 * K && ROUNDS > 0 {
 	}
 }
 
-philox_2x32_10 :: proc "contextless" (key: u32, counter: u64) -> u64 {
+philox_10 :: proc "contextless" (key: $K, counter: $C) -> C {
+	when K == u32 do T :: [1]u32
+	else when K == u64 do T :: [1]u64
+	else do T :: K
 	counter := counter
-	philox_gen(10, transmute([1]u32)key, cast(^[2]u32)&counter)
+	philox_gen(10, cast(T)key, &counter)
 	return counter
 }
 
-philox_4x32_10 :: proc "contextless" (key: u64, counter: u128) -> u128 {
-	counter := counter
-	philox_gen(10, transmute([2]u32)key, cast(^[4]u32)&counter)
-	return counter
+philox_2x32_10 :: proc "contextless" (key: u32, counter: [2]u32) -> [2]u32 {
+	return philox_10(key, counter)
 }
 
-philox_2x64_10 :: proc "contextless" (key: u64, counter: u128) -> u128 {
-	counter := counter
-	philox_gen(10, transmute([1]u64)key, cast(^[2]u64)&counter)
-	return counter
+philox_4x32_10 :: proc "contextless" (key: [2]u32, counter: [4]u32) -> [4]u32 {
+	return philox_10(key, counter)
+}
+
+philox_2x64_10 :: proc "contextless" (key: u64, counter: [2]u64) -> [2]u64 {
+	return philox_10(key, counter)
+}
+
+philox_4x64_10 :: proc "contextless" (key: [2]u64, counter: [4]u64) -> [4]u64 {
+	return philox_10(key, counter)
 }
